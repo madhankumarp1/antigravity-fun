@@ -108,8 +108,9 @@ io.on('connection', (socket) => {
             activePairs.set(socket.id, partnerId);
             activePairs.set(partnerId, socket.id);
 
-            // Notify initiator (current socket) to call partner
+            // IMPORTANT: Notify BOTH users they found a partner
             socket.emit('partner_found', partnerId);
+            io.to(partnerId).emit('partner_found', socket.id);
 
             console.log(`Paired ${socket.id} with ${partnerId}`);
             broadcastUserCount();
