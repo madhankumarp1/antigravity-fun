@@ -51,16 +51,19 @@ export default function VideoChat() {
         });
 
         socket.on('partner_found', (partnerId: string) => {
+            console.log('🎯 Partner found! Partner ID:', partnerId);
             setStatus('Connected to stranger!');
             callUser(partnerId);
         });
 
         socket.on('call_made', ({ signal, from }: { signal: SimplePeer.SignalData; from: string }) => {
+            console.log('📞 Incoming call from:', from);
             setStatus('Connected to stranger!');
             answerCall(signal, from);
         });
 
         socket.on('call_accepted', (signal: SimplePeer.SignalData) => {
+            console.log('✅ Call accepted! Signaling...');
             connectionRef.current?.signal(signal);
         });
 
@@ -120,9 +123,11 @@ export default function VideoChat() {
         });
 
         peer.on('stream', (currentStream: MediaStream) => {
+            console.log('🎥 Received remote stream!', currentStream);
             setRemoteStream(currentStream);
             if (remoteVideo.current) {
                 remoteVideo.current.srcObject = currentStream;
+                console.log('✅ Remote video element updated');
             }
         });
 
@@ -148,9 +153,11 @@ export default function VideoChat() {
         });
 
         peer.on('stream', (currentStream: MediaStream) => {
+            console.log('\ud83c\udfa5 Received remote stream (answer)!', currentStream);
             setRemoteStream(currentStream);
             if (remoteVideo.current) {
                 remoteVideo.current.srcObject = currentStream;
+                console.log('\u2705 Remote video element updated (answer)');
             }
         });
 

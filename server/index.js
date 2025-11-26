@@ -108,11 +108,12 @@ io.on('connection', (socket) => {
             activePairs.set(socket.id, partnerId);
             activePairs.set(partnerId, socket.id);
 
-            // IMPORTANT: Notify BOTH users they found a partner
+            // IMPORTANT: Only the NEW user (socket) initiates the call
+            // The waiting user (partner) will receive the call
             socket.emit('partner_found', partnerId);
-            io.to(partnerId).emit('partner_found', socket.id);
+            // Don't send partner_found to the waiting user - they'll get call_made instead
 
-            console.log(`Paired ${socket.id} with ${partnerId}`);
+            console.log(`Paired ${socket.id} with ${partnerId} - ${socket.id} will initiate`);
             broadcastUserCount();
         } else {
             waitingUsers.push({ socketId: socket.id, ...preferences });
