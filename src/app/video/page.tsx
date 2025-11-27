@@ -28,7 +28,19 @@ export default function VideoChat() {
     const connectionRef = useRef<SimplePeer.Instance | null>(null);
     const originalStream = useRef<MediaStream | null>(null);
 
+    const initialized = useRef(false);
+
     useEffect(() => {
+        if (remoteVideo.current && remoteStream) {
+            console.log('🎥 Setting remote video srcObject via useEffect');
+            remoteVideo.current.srcObject = remoteStream;
+        }
+    }, [remoteStream]);
+
+    useEffect(() => {
+        if (initialized.current) return;
+        initialized.current = true;
+
         navigator.mediaDevices.getUserMedia({ video: true, audio: true })
             .then((currentStream) => {
                 setStream(currentStream);
@@ -93,6 +105,8 @@ export default function VideoChat() {
         });
 
         return () => {
+            // Only disconnect if we are unmounting for real (not just strict mode flicker)
+            // But for now, standard cleanup is safer to avoid leaks
             socket.disconnect();
             if (stream) {
                 stream.getTracks().forEach(track => track.stop());
