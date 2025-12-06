@@ -8,8 +8,12 @@ const getSocketUrl = (): string => {
 
     // In browser context, use current hostname with port 3001
     if (typeof window !== 'undefined') {
-        const protocol = window.location.protocol === 'https:' ? 'https:' : 'http:';
+        const isSecure = window.location.protocol === 'https:';
+        const protocol = isSecure ? 'https:' : 'http:';
         const hostname = window.location.hostname;
+        // If we are on HTTPS, we MUST use a secure backend. 
+        // Note: Connecting to port 3001 on HTTPS might fail if the backend doesn't support SSL.
+        // We assume the user has set up a reverse proxy or is running locally.
         return `${protocol}//${hostname}:3001`;
     }
 

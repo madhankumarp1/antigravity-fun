@@ -106,13 +106,23 @@ export default function VideoChat() {
                 }
 
                 socket.connect();
-                setStatus('Looking for a stranger...');
-                socket.emit('find_partner');
+                setStatus('Connecting to server...');
             })
             .catch((err) => {
                 console.error('Error accessing media devices:', err);
                 setStatus('Error accessing camera/microphone');
             });
+
+        socket.on('connect', () => {
+            console.log('✅ Connected to signaling server');
+            setStatus('Looking for a stranger...');
+            socket.emit('find_partner');
+        });
+
+        socket.on('connect_error', (err) => {
+            console.error('❌ Socket connection error:', err);
+            setStatus(`Connection error: ${err.message}. If you are on HTTPS, ensure server acts as WSS.`);
+        });
 
         socket.on('user_count_update', (count: { online: number; waiting: number }) => {
             setUserCount(count);
