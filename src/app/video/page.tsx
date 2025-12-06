@@ -441,7 +441,16 @@ export default function VideoChat() {
                                     playsInline
                                     autoPlay
                                     muted
-                                    ref={remoteVideo}
+                                    ref={(el) => {
+                                        remoteVideo.current = el;
+                                        if (el && remoteStream) {
+                                            if (el.srcObject !== remoteStream) {
+                                                console.log('🔄 Setting srcObject on mount/ref-update');
+                                                el.srcObject = remoteStream;
+                                                el.play().catch(e => console.error('Auto-play error:', e));
+                                            }
+                                        }
+                                    }}
                                     onClick={() => remoteVideo.current?.play()}
                                     onCanPlay={() => {
                                         console.log('▶️ canplay event fired');
