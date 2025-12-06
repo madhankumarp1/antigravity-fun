@@ -33,7 +33,63 @@ export default function VideoChat() {
     useEffect(() => {
         if (remoteVideo.current && remoteStream) {
             console.log('🎥 Setting remote video srcObject via useEffect');
+            console.log('📊 Remote stream details:', {
+                id: remoteStream.id,
+                active: remoteStream.active,
+                videoTracks: remoteStream.getVideoTracks().length,
+                audioTracks: remoteStream.getAudioTracks().length
+            });
+
+            // Log track details
+            remoteStream.getVideoTracks().forEach((track, index) => {
+                console.log(`🎬 Video Track ${index}:`, {
+                    id: track.id,
+                    label: track.label,
+                    enabled: track.enabled,
+                    muted: track.muted,
+                    readyState: track.readyState
+                });
+            });
+
+            remoteStream.getAudioTracks().forEach((track, index) => {
+                console.log(`🔊 Audio Track ${index}:`, {
+                    id: track.id,
+                    label: track.label,
+                    enabled: track.enabled,
+                    muted: track.muted,
+                    readyState: track.readyState
+                });
+            });
+
             remoteVideo.current.srcObject = remoteStream;
+
+            // Enhanced play handling with retry logic
+            const playVideo = async () => {
+                try {
+                    // Initially muted for autoplay compliance
+                    remoteVideo.current!.muted = true;
+                    await remoteVideo.current!.play();
+                    console.log('✅ Remote video playing successfully');
+
+                    // Unmute after successful play
+                    setTimeout(() => {
+                        if (remoteVideo.current) {
+                            remoteVideo.current.muted = false;
+                            console.log('🔊 Remote video unmuted');
+                        }
+                    }, 100);
+                } catch (error) {
+                    console.error('❌ Play failed, retrying...', error);
+                    // Retry after a short delay
+                    setTimeout(() => {
+                        if (remoteVideo.current && remoteVideo.current.srcObject) {
+                            remoteVideo.current.play().catch(e => console.error('Retry failed:', e));
+                        }
+                    }, 500);
+                }
+            };
+
+            playVideo();
         }
     }, [remoteStream]);
 
@@ -76,7 +132,9 @@ export default function VideoChat() {
 
         socket.on('call_accepted', (signal: SimplePeer.SignalData) => {
             console.log('✅ Call accepted! Signaling...');
-            connectionRef.current?.signal(signal);
+            if (connectionRef.current && !connectionRef.current.destroyed) {
+                connectionRef.current.signal(signal);
+            }
         });
 
         socket.on('message_received', (message: string) => {
@@ -122,7 +180,7 @@ export default function VideoChat() {
         const peer = new SimplePeer({
             initiator: true,
             trickle: false,
-            stream: stream!,
+            stream: originalStream.current!,
             config: {
                 iceServers: [
                     { urls: 'stun:stun.l.google.com:19302' },
@@ -137,11 +195,27 @@ export default function VideoChat() {
         });
 
         peer.on('stream', (currentStream: MediaStream) => {
-            console.log('🎥 Received remote stream!', currentStream);
+            console.log('🎥 Received remote stream (initiator)!', {
+                id: currentStream.id,
+                active: currentStream.active,
+                videoTracks: currentStream.getVideoTracks().length,
+                audioTracks: currentStream.getAudioTracks().length
+            });
+
+            // Log all tracks
+            currentStream.getTracks().forEach((track, index) => {
+                console.log(`🎯 Track ${index} (${track.kind}):`, {
+                    id: track.id,
+                    label: track.label,
+                    enabled: track.enabled,
+                    readyState: track.readyState
+                });
+            });
+
             setRemoteStream(currentStream);
             if (remoteVideo.current) {
                 remoteVideo.current.srcObject = currentStream;
-                console.log('✅ Remote video element updated');
+                console.log('✅ Remote video element updated (initiator)');
             }
         });
 
@@ -152,7 +226,7 @@ export default function VideoChat() {
         const peer = new SimplePeer({
             initiator: false,
             trickle: false,
-            stream: stream!,
+            stream: originalStream.current!,
             config: {
                 iceServers: [
                     { urls: 'stun:stun.l.google.com:19302' },
@@ -167,11 +241,27 @@ export default function VideoChat() {
         });
 
         peer.on('stream', (currentStream: MediaStream) => {
-            console.log('\ud83c\udfa5 Received remote stream (answer)!', currentStream);
+            console.log('🎥 Received remote stream (answerer)!', {
+                id: currentStream.id,
+                active: currentStream.active,
+                videoTracks: currentStream.getVideoTracks().length,
+                audioTracks: currentStream.getAudioTracks().length
+            });
+
+            // Log all tracks
+            currentStream.getTracks().forEach((track, index) => {
+                console.log(`🎯 Track ${index} (${track.kind}):`, {
+                    id: track.id,
+                    label: track.label,
+                    enabled: track.enabled,
+                    readyState: track.readyState
+                });
+            });
+
             setRemoteStream(currentStream);
             if (remoteVideo.current) {
                 remoteVideo.current.srcObject = currentStream;
-                console.log('\u2705 Remote video element updated (answer)');
+                console.log('✅ Remote video element updated (answerer)');
             }
         });
 
@@ -291,6 +381,14 @@ export default function VideoChat() {
         socket.emit('report_user', { reason });
     };
 
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    if (!mounted) return null;
+
     return (
         <div className="flex flex-col h-screen bg-gradient-to-br from-indigo-950 via-purple-950 to-pink-950 text-white">
             {/* Header */}
@@ -326,6 +424,7 @@ export default function VideoChat() {
                                     exit={{ opacity: 0, scale: 0.9 }}
                                     playsInline
                                     autoPlay
+                                    muted={true}
                                     ref={remoteVideo}
                                     className="w-full h-full object-contain rounded-lg"
                                 />
