@@ -6,15 +6,24 @@ const getSocketUrl = (): string => {
         return process.env.NEXT_PUBLIC_SIGNALING_SERVER_URL;
     }
 
-    // Since we are now serving the socket on the same server as the Next.js app,
-    // we can connect to the current origin (relative path).
-    // Socket.io client will automatically use the current window location.
     if (typeof window !== 'undefined') {
-        return window.location.origin;
+        const hostname = window.location.hostname;
+
+        // precise logic for production vs local
+        if (hostname.includes('vercel.app')) {
+            // Your deployed Render server
+            return 'https://antigravity-fun-1.onrender.com';
+        }
+
+        if (hostname === 'localhost' || hostname === '127.0.0.1') {
+            // Local development: Frontend (3000) -> Backend (3001)
+            const protocol = window.location.protocol;
+            return `${protocol}//${hostname}:3001`;
+        }
     }
 
-    // Fallback for server-side rendering
-    return 'http://localhost:3000';
+    // Default fallback
+    return 'https://antigravity-fun-1.onrender.com';
 };
 
 export const socket = io(getSocketUrl(), {
