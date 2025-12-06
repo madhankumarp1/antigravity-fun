@@ -9,7 +9,40 @@ import { motion, AnimatePresence } from 'framer-motion';
 import FilterModal from '@/components/FilterModal';
 import ReportModal from '@/components/ReportModal';
 
+// Debug Component
+function DebugStats({ videoRef, stream }: { videoRef: React.RefObject<HTMLVideoElement | null>; stream: MediaStream }) {
+    const [stats, setStats] = useState({ width: 0, height: 0, currentTime: 0, paused: true, readyState: 0 });
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            if (videoRef.current) {
+                setStats({
+                    width: videoRef.current.videoWidth,
+                    height: videoRef.current.videoHeight,
+                    currentTime: videoRef.current.currentTime,
+                    paused: videoRef.current.paused,
+                    readyState: videoRef.current.readyState
+                });
+            }
+        }, 1000);
+        return () => clearInterval(interval);
+    }, [videoRef]);
+
+    return (
+        <div className="space-y-1">
+            <p>Resolution: {stats.width}x{stats.height}</p>
+            <p>Time: {stats.currentTime.toFixed(1)}s</p>
+            <p>Paused: {stats.paused ? 'YES' : 'NO'}</p>
+            <p>State: {stats.readyState} (4=HAVE_ENOUGH_DATA)</p>
+            <p>Stream Active: {stream.active ? 'YES' : 'NO'}</p>
+            <p>Tracks: {stream.getTracks().length}</p>
+        </div>
+    );
+}
+
 export default function VideoChat() {
+    // ... existing component ...
+
     const [stream, setStream] = useState<MediaStream | null>(null);
     const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
     const [isMuted, setIsMuted] = useState(false);
@@ -431,49 +464,41 @@ export default function VideoChat() {
                 <div className="flex-1 flex flex-col relative bg-gradient-to-br from-gray-900 via-purple-900/30 to-pink-900/30">
                     <div className="flex-1 flex items-center justify-center relative">
                         {/* Remote Video */}
-                        <AnimatePresence mode="wait">
+                        {/* Remote Video - Simplified for Debugging */}
+                        <div className="relative w-full h-full flex items-center justify-center">
                             {remoteStream ? (
-                                <motion.video
-                                    key="remote-video"
-                                    initial={{ opacity: 0, scale: 0.9 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    exit={{ opacity: 0, scale: 0.9 }}
-                                    playsInline
-                                    autoPlay
-                                    muted
-                                    ref={(el) => {
-                                        remoteVideo.current = el;
-                                        if (el && remoteStream) {
-                                            if (el.srcObject !== remoteStream) {
-                                                console.log('🔄 Setting srcObject on mount/ref-update');
-                                                el.srcObject = remoteStream;
-                                                el.play().catch(e => console.error('Auto-play error:', e));
+                                <>
+                                    <video
+                                        key="remote-video-raw"
+                                        className="w-full h-full object-contain rounded-lg bg-black/20 border-2 border-red-500"
+                                        playsInline
+                                        autoPlay
+                                        muted
+                                        ref={(el) => {
+                                            remoteVideo.current = el;
+                                            if (el && remoteStream) {
+                                                if (el.srcObject !== remoteStream) {
+                                                    console.log('🔄 Setting srcObject', remoteStream.id);
+                                                    el.srcObject = remoteStream;
+                                                    el.play().catch(e => console.error('Auto-play error:', e));
+                                                }
                                             }
-                                        }
-                                    }}
-                                    onClick={() => remoteVideo.current?.play()}
-                                    onCanPlay={() => {
-                                        console.log('▶️ canplay event fired');
-                                        remoteVideo.current?.play().catch(e => console.error(e));
-                                    }}
-                                    className="w-full h-full object-contain rounded-lg"
-                                />
-                            ) : (
-                                <motion.div
-                                    key="waiting"
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    exit={{ opacity: 0 }}
-                                    className="flex flex-col items-center justify-center text-gray-300"
-                                >
-                                    <div className="relative">
-                                        <div className="animate-spin rounded-full h-20 w-20 border-4 border-transparent border-t-cyan-400 border-r-purple-400 border-b-pink-400 mb-4"></div>
-                                        <div className="absolute inset-0 rounded-full border-4 border-yellow-400 opacity-20 animate-ping"></div>
+                                        }}
+                                        onLoadedMetadata={() => console.log('🎞️ Metadata loaded. Resolution:', remoteVideo.current?.videoWidth, 'x', remoteVideo.current?.videoHeight)}
+                                        onResize={() => console.log('🎞️ Video resized:', remoteVideo.current?.videoWidth, 'x', remoteVideo.current?.videoHeight)}
+                                    />
+                                    {/* Advanced Debug Overlay */}
+                                    <div className="absolute top-2 left-2 bg-black/70 text-green-400 text-xs p-2 rounded z-50 font-mono whitespace-pre pointer-events-none">
+                                        <DebugStats videoRef={remoteVideo} stream={remoteStream} />
                                     </div>
+                                </>
+                            ) : (
+                                <div className="flex flex-col items-center justify-center text-gray-300">
+                                    <div className="animate-spin rounded-full h-20 w-20 border-4 border-transparent border-t-cyan-400 border-r-purple-400 border-b-pink-400 mb-4"></div>
                                     <p className="animate-pulse text-xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400">Waiting for partner...</p>
-                                </motion.div>
+                                </div>
                             )}
-                        </AnimatePresence>
+                        </div>
 
                         {/* Local Video (Picture-in-Picture) */}
                         <motion.div
