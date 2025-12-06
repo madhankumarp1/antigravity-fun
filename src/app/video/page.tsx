@@ -65,29 +65,34 @@ export default function VideoChat() {
 
             // Enhanced play handling with retry logic
             const playVideo = async () => {
+                const videoEl = remoteVideo.current;
+                if (!videoEl) return;
+
+                console.log('🎬 Attempting to play remote video. srcObject:', !!videoEl.srcObject);
+                console.log('🎬 Video Element State:', {
+                    paused: videoEl.paused,
+                    muted: videoEl.muted,
+                    readyState: videoEl.readyState,
+                    networkState: videoEl.networkState
+                });
+
                 try {
-                    // Initially muted for autoplay compliance
-                    remoteVideo.current!.muted = true;
-                    await remoteVideo.current!.play();
+                    // Force playback
+                    videoEl.srcObject = remoteStream;
+                    videoEl.muted = true; // Always mute first to allow autoplay
+                    await videoEl.play();
                     console.log('✅ Remote video playing successfully');
 
-                    // Unmute after successful play
-                    setTimeout(() => {
-                        if (remoteVideo.current) {
-                            remoteVideo.current.muted = false;
-                            console.log('🔊 Remote video unmuted');
-                        }
-                    }, 100);
+                    // Unmute after successful play if desired
+                    // setTimeout(() => { if (videoEl) videoEl.muted = false; }, 500); 
                 } catch (error) {
-                    console.error('❌ Play failed, retrying...', error);
-                    // Retry after a short delay
-                    setTimeout(() => {
-                        if (remoteVideo.current && remoteVideo.current.srcObject) {
-                            remoteVideo.current.play().catch(e => console.error('Retry failed:', e));
-                        }
-                    }, 500);
+                    console.error('❌ Play failed:', error);
+                    // Interactive retry fallback
+                    setStatus('Tap to play video');
                 }
             };
+
+            playVideo();
 
             playVideo();
         }
@@ -402,12 +407,13 @@ export default function VideoChat() {
     return (
         <div className="flex flex-col h-screen bg-gradient-to-br from-indigo-950 via-purple-950 to-pink-950 text-white">
             {/* Header */}
-            <header className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-cyan-900/50 via-purple-900/50 to-pink-900/50 border-b border-purple-500/30 backdrop-blur-sm">
-                <Link href="/" className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 drop-shadow-lg">
+            {/* Header */}
+            <header className="flex flex-col md:flex-row items-center justify-between px-6 py-4 bg-gradient-to-r from-cyan-900/50 via-purple-900/50 to-pink-900/50 border-b border-purple-500/30 backdrop-blur-sm z-50">
+                <Link href="/" className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 drop-shadow-lg mb-2 md:mb-0">
                     🌈 Antigravity Fun
                 </Link>
                 <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-2 text-sm bg-white/5 rounded-full px-4 py-2 border border-white/10">
+                    <div className="hidden md:flex items-center gap-2 text-sm bg-white/5 rounded-full px-4 py-2 border border-white/10">
                         <Users className="w-4 h-4 text-green-400" />
                         <span className="text-green-400 font-bold">{userCount.online}</span>
                         <span className="text-gray-300">online</span>
@@ -434,8 +440,13 @@ export default function VideoChat() {
                                     exit={{ opacity: 0, scale: 0.9 }}
                                     playsInline
                                     autoPlay
-                                    muted={true}
+                                    muted
                                     ref={remoteVideo}
+                                    onClick={() => remoteVideo.current?.play()}
+                                    onCanPlay={() => {
+                                        console.log('▶️ canplay event fired');
+                                        remoteVideo.current?.play().catch(e => console.error(e));
+                                    }}
                                     className="w-full h-full object-contain rounded-lg"
                                 />
                             ) : (

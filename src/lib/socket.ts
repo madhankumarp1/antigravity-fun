@@ -6,19 +6,15 @@ const getSocketUrl = (): string => {
         return process.env.NEXT_PUBLIC_SIGNALING_SERVER_URL;
     }
 
-    // In browser context, use current hostname with port 3001
+    // Since we are now serving the socket on the same server as the Next.js app,
+    // we can connect to the current origin (relative path).
+    // Socket.io client will automatically use the current window location.
     if (typeof window !== 'undefined') {
-        const isSecure = window.location.protocol === 'https:';
-        const protocol = isSecure ? 'https:' : 'http:';
-        const hostname = window.location.hostname;
-        // If we are on HTTPS, we MUST use a secure backend. 
-        // Note: Connecting to port 3001 on HTTPS might fail if the backend doesn't support SSL.
-        // We assume the user has set up a reverse proxy or is running locally.
-        return `${protocol}//${hostname}:3001`;
+        return window.location.origin;
     }
 
     // Fallback for server-side rendering
-    return 'http://localhost:3001';
+    return 'http://localhost:3000';
 };
 
 export const socket = io(getSocketUrl(), {
