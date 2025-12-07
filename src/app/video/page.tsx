@@ -35,7 +35,18 @@ export default function VideoChat() {
         if (initialized.current) return;
         initialized.current = true;
 
-        navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+        navigator.mediaDevices.getUserMedia({
+            video: {
+                width: { ideal: 1280 },
+                height: { ideal: 720 },
+                frameRate: { ideal: 30, max: 30 }
+            },
+            audio: {
+                echoCancellation: true,
+                noiseSuppression: true,
+                autoGainControl: true
+            }
+        })
             .then((currentStream) => {
                 setStream(currentStream);
                 originalStream.current = currentStream;
@@ -300,10 +311,10 @@ export default function VideoChat() {
             </header>
 
             {/* Main Content Area */}
-            <main className="flex-1 flex overflow-hidden">
+            <main className="flex-1 flex flex-col md:flex-row overflow-hidden">
 
                 {/* Left Side: Videos (Stacked) & Controls */}
-                <div className="flex-1 flex flex-col min-w-0 bg-[#f0f0f0] p-2 md:p-4 gap-2 md:gap-4 relative">
+                <div className="flex-1 flex flex-col min-w-0 bg-[#f0f0f0] p-2 md:p-4 gap-2 md:gap-4 relative touch-none">
 
                     {/* Videos Container - Stacked Vertically */}
                     <div className="flex-1 flex flex-col gap-2 md:gap-3">
@@ -316,11 +327,7 @@ export default function VideoChat() {
                                         <div className="absolute top-3 left-3 z-10 bg-black/70 text-white px-3 py-1 rounded-full text-sm font-bold backdrop-blur-sm">
                                             Stranger
                                         </div>
-                                        <motion.video
-                                            key="remote-video"
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: 1 }}
-                                            exit={{ opacity: 0 }}
+                                        <video
                                             playsInline
                                             autoPlay
                                             muted={false}
@@ -335,6 +342,7 @@ export default function VideoChat() {
                                                 }
                                             }}
                                             className="w-full h-full object-cover"
+                                            style={{ transform: 'translateZ(0)' }}
                                         />
                                         {/* Report Flag */}
                                         <button
@@ -367,6 +375,7 @@ export default function VideoChat() {
                                 muted
                                 ref={myVideo}
                                 className={`w-full h-full object-cover ${isVideoOff ? 'hidden' : ''}`}
+                                style={{ transform: 'translateZ(0)' }}
                             />
                             {isVideoOff && (
                                 <div className="absolute inset-0 flex items-center justify-center bg-gray-800 text-white text-lg">
