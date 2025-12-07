@@ -278,173 +278,191 @@ export default function VideoChat() {
     if (!mounted) return null;
 
     return (
-        <div className="flex flex-col h-screen bg-gradient-to-br from-indigo-950 via-purple-950 to-pink-950 text-white">
+        <div className="flex flex-col h-screen bg-white text-[#333] font-sans">
             {/* Header */}
-            <header className="flex flex-col md:flex-row items-center justify-between px-6 py-4 bg-gradient-to-r from-cyan-900/50 via-purple-900/50 to-pink-900/50 border-b border-purple-500/30 backdrop-blur-sm z-50">
-                <Link href="/" className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 drop-shadow-lg mb-2 md:mb-0">
-                    🌈 Antigravity Fun
-                </Link>
-                <div className="flex items-center gap-4">
-                    <div className="hidden md:flex items-center gap-2 text-sm bg-white/5 rounded-full px-4 py-2 border border-white/10">
-                        <Users className="w-4 h-4 text-green-400" />
-                        <span className="text-green-400 font-bold">{userCount.online}</span>
-                        <span className="text-gray-300">online</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-200">
-                        <span className={`w-3 h-3 rounded-full ${status.includes('Connected') ? 'bg-gradient-to-r from-green-400 to-emerald-400 shadow-lg shadow-green-500/50' : 'bg-gradient-to-r from-yellow-400 to-orange-400 animate-pulse shadow-lg shadow-yellow-500/50'}`}></span>
-                        <span className="font-semibold">{status}</span>
+            <header className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white z-50">
+                <div className="flex items-center gap-2">
+                    <Link href="/" className="text-3xl font-bold tracking-tight select-none">
+                        <span className="text-blue-500">antigravity</span>
+                        <span className="text-orange-500 transform rotate-12 inline-block">.fun</span>
+                    </Link>
+                    <span className="text-xs text-gray-400 mt-2 rotate-[-5deg] font-handwriting">talk to strangers!</span>
+                </div>
+
+                <div className="flex items-center gap-4 text-sm font-medium text-gray-500">
+                    {/* Online Counters */}
+                    <div className="hidden md:flex gap-4">
+                        <span title="Users Online">
+                            <strong className="text-gray-700">{userCount.online}</strong> online
+                        </span>
                     </div>
                 </div>
             </header>
 
-            {/* Main Content */}
-            <div className="flex flex-1 overflow-hidden">
-                {/* Video Area */}
-                <div className="flex-1 flex flex-col relative bg-gradient-to-br from-gray-900 via-purple-900/30 to-pink-900/30">
-                    <div className="flex-1 flex items-center justify-center relative">
+            {/* Main Content Area */}
+            <main className="flex-1 flex overflow-hidden">
+
+                {/* Left Side: Video & Controls */}
+                <div className="flex-1 flex flex-col min-w-0 bg-[#f0f0f0] p-2 md:p-4 gap-2 md:gap-4 relative">
+
+                    {/* Primary Video Container */}
+                    <div className="flex-1 relative bg-[#333] rounded-lg overflow-hidden shadow-inner flex items-center justify-center group">
                         {/* Remote Video */}
                         <AnimatePresence mode="wait">
                             {remoteStream ? (
                                 <motion.video
                                     key="remote-video"
-                                    initial={{ opacity: 0, scale: 0.9 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    exit={{ opacity: 0, scale: 0.9 }}
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
                                     playsInline
                                     autoPlay
-                                    muted // Start muted for autoplay policy
+                                    // Start muted to comply with autoplay policies, user can unmute
+                                    muted={false}
                                     ref={(el) => {
                                         remoteVideo.current = el;
-                                        // CRITICAL: Ensure srcObject is set when the element mounts
                                         if (el && remoteStream) {
                                             if (el.srcObject !== remoteStream) {
-                                                console.log('🔄 Setting srcObject on motion.video mount');
+                                                console.log('🔄 Setting srcObject on mount');
                                                 el.srcObject = remoteStream;
                                                 el.play().catch(e => console.error('Auto-play error:', e));
                                             }
                                         }
                                     }}
-                                    onClick={(e) => {
-                                        const video = e.currentTarget;
-                                        video.muted = false; // Unmute on click
-                                        video.play();
-                                    }}
-                                    className="w-full h-full object-contain rounded-lg"
+                                    className="w-full h-full object-contain bg-black"
                                 />
                             ) : (
-                                <motion.div
-                                    key="waiting"
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    exit={{ opacity: 0 }}
-                                    className="flex flex-col items-center justify-center text-gray-300"
-                                >
-                                    <div className="relative">
-                                        <div className="animate-spin rounded-full h-20 w-20 border-4 border-transparent border-t-cyan-400 border-r-purple-400 border-b-pink-400 mb-4"></div>
-                                        <div className="absolute inset-0 rounded-full border-4 border-yellow-400 opacity-20 animate-ping"></div>
-                                    </div>
-                                    <p className="animate-pulse text-xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400">Waiting for partner...</p>
-                                </motion.div>
+                                <div className="text-center text-white/50">
+                                    <div className="animate-spin text-4xl mb-4">⏳</div>
+                                    <p className="text-lg font-medium">{status}</p>
+                                </div>
                             )}
                         </AnimatePresence>
 
-                        {/* Local Video (Picture-in-Picture) */}
-                        <motion.div
-                            initial={{ x: 100, opacity: 0 }}
-                            animate={{ x: 0, opacity: 1 }}
-                            drag
-                            dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
-                            className="absolute bottom-4 right-4 w-48 h-36 bg-gradient-to-br from-cyan-900/80 to-purple-900/80 rounded-xl overflow-hidden border-2 border-purple-400/50 shadow-2xl shadow-purple-500/30 cursor-move backdrop-blur-sm z-50"
-                        >
-                            <video playsInline autoPlay muted ref={myVideo} className="w-full h-full object-cover" />
-                            {isMuted && <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-red-900/70 to-pink-900/70 backdrop-blur-sm"><MicOff className="w-6 h-6 text-red-300" /></div>}
-                            {isScreenSharing && <div className="absolute top-2 left-2 bg-blue-500/80 rounded px-2 py-1 text-xs font-bold">Sharing</div>}
-                        </motion.div>
+                        {/* Local Video (PiP Style) */}
+                        <div className="absolute bottom-4 right-4 w-32 md:w-48 aspect-video bg-black rounded border-2 border-white/20 overflow-hidden shadow-lg z-20">
+                            <video
+                                playsInline
+                                autoPlay
+                                muted
+                                ref={myVideo}
+                                className={`w-full h-full object-cover ${isVideoOff ? 'hidden' : 'block'}`}
+                            />
+                            {isVideoOff && <div className="w-full h-full flex items-center justify-center bg-gray-800 text-white text-xs">Camera Off</div>}
+                        </div>
 
-                        {/* Filter Button */}
-                        <motion.button
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
-                            onClick={() => setShowFilterModal(true)}
-                            className="absolute top-4 left-4 p-3 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 shadow-lg shadow-purple-500/30 hover:from-purple-700 hover:to-pink-700 transition-all"
-                        >
-                            <Filter className="w-5 h-5" />
-                        </motion.button>
-
-                        {/* Report Button */}
+                        {/* Report Flag (Overlay) */}
                         {remoteStream && (
-                            <motion.button
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.9 }}
+                            <button
                                 onClick={() => setShowReportModal(true)}
-                                className="absolute top-4 right-4 p-3 rounded-full bg-gradient-to-r from-red-600 to-orange-600 shadow-lg shadow-red-500/30 hover:from-red-700 hover:to-orange-700 transition-all"
+                                className="absolute top-2 right-2 p-2 bg-black/50 text-white/70 hover:text-red-500 rounded hover:bg-black/70 transition-colors"
+                                title="Report User"
                             >
-                                <Flag className="w-5 h-5" />
-                            </motion.button>
+                                <Flag size={16} />
+                            </button>
                         )}
                     </div>
 
-                    {/* Controls */}
-                    <div className="h-24 bg-gradient-to-r from-gray-900/90 via-purple-900/50 to-pink-900/50 border-t border-purple-500/30 flex items-center justify-center gap-4 backdrop-blur-md">
-                        <motion.button whileHover={{ scale: 1.15, rotate: 5 }} whileTap={{ scale: 0.9 }} onClick={toggleMute} className={`p-4 rounded-full ${isMuted ? 'bg-gradient-to-r from-red-500 to-pink-500 shadow-lg shadow-red-500/50' : 'bg-gradient-to-r from-cyan-600 to-blue-600 shadow-lg shadow-cyan-500/50'} transition-all duration-300`}>
-                            {isMuted ? <MicOff className="w-6 h-6" /> : <Mic className="w-6 h-6" />}
-                        </motion.button>
-                        <motion.button whileHover={{ scale: 1.15, rotate: -5 }} whileTap={{ scale: 0.9 }} onClick={toggleVideo} className={`p-4 rounded-full ${isVideoOff ? 'bg-gradient-to-r from-red-500 to-pink-500 shadow-lg shadow-red-500/50' : 'bg-gradient-to-r from-purple-600 to-pink-600 shadow-lg shadow-purple-500/50'} transition-all duration-300`}>
-                            {isVideoOff ? <VideoOff className="w-6 h-6" /> : <Video className="w-6 h-6" />}
-                        </motion.button>
-                        <motion.button whileHover={{ scale: 1.15 }} whileTap={{ scale: 0.9 }} onClick={toggleScreenShare} className={`p-4 rounded-full ${isScreenSharing ? 'bg-gradient-to-r from-blue-500 to-cyan-500 shadow-lg shadow-blue-500/50' : 'bg-gradient-to-r from-gray-700 to-gray-600 shadow-lg'} transition-all duration-300`}>
-                            <Monitor className="w-6 h-6" />
-                        </motion.button>
-                        <motion.button
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.95 }}
+                    {/* Control Bar (Omegle Style) */}
+                    <div className="h-16 flex gap-0.5 md:gap-4 shrink-0">
+                        {/* Stop / New Chat Button */}
+                        <button
                             onClick={handleSkip}
                             disabled={!canSkip}
-                            className={`px-8 py-4 rounded-full font-bold flex items-center gap-2 transition-all duration-300 shadow-2xl ${canSkip ? 'bg-gradient-to-r from-yellow-500 via-orange-500 to-red-500 hover:from-yellow-600 hover:via-orange-600 hover:to-red-600 shadow-orange-500/40' : 'bg-gray-700 opacity-50 cursor-not-allowed'}`}
+                            className={`flex-1 md:flex-none md:w-40 flex flex-col items-center justify-center rounded shadow-sm transition-all active:scale-[0.98]
+                                ${canSkip
+                                    ? 'bg-[#80bfff] hover:bg-[#66b3ff] text-white' // Blue "New" style
+                                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                }`}
                         >
-                            <SkipForward className="w-5 h-5" /> Skip
-                        </motion.button>
-                        <Link href="/">
-                            <motion.div whileHover={{ scale: 1.15, rotate: 180 }} whileTap={{ scale: 0.9 }} className="p-4 rounded-full bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 transition-all duration-300 shadow-lg shadow-red-500/50">
-                                <StopCircle className="w-6 h-6" />
-                            </motion.div>
-                        </Link>
+                            <span className="font-bold text-lg drop-shadow-sm uppercase tracking-wide">
+                                {remoteStream ? 'Stop' : 'New'}
+                            </span>
+                            <span className="text-[10px] uppercase font-semibold opacity-80">
+                                {canSkip ? 'Press Esc' : 'Wait...'}
+                            </span>
+                        </button>
+
+                        {/* Middle Controls (Orange) */}
+                        <div className="flex-1 flex bg-orange-100 rounded border border-orange-200 p-1 gap-1">
+                            <button
+                                onClick={toggleMute}
+                                className={`flex-1 flex flex-col items-center justify-center rounded text-orange-800 hover:bg-orange-200 transition-colors ${isMuted ? 'text-red-600 bg-red-50' : ''}`}
+                            >
+                                {isMuted ? <MicOff size={20} /> : <Mic size={20} />}
+                                <span className="text-[10px] font-bold mt-1">Mic</span>
+                            </button>
+
+                            <button
+                                onClick={toggleVideo}
+                                className={`flex-1 flex flex-col items-center justify-center rounded text-orange-800 hover:bg-orange-200 transition-colors ${isVideoOff ? 'text-red-600 bg-red-50' : ''}`}
+                            >
+                                {isVideoOff ? <VideoOff size={20} /> : <Video size={20} />}
+                                <span className="text-[10px] font-bold mt-1">Cam</span>
+                            </button>
+
+                            <button
+                                onClick={() => setShowFilterModal(true)}
+                                className="hidden md:flex flex-1 flex-col items-center justify-center rounded text-orange-800 hover:bg-orange-200 transition-colors"
+                            >
+                                <Filter size={20} />
+                                <span className="text-[10px] font-bold mt-1">Filters</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
-                {/* Chat Area */}
-                <div className="w-80 bg-gradient-to-br from-gray-900/95 via-purple-900/40 to-pink-900/40 border-l border-purple-500/30 flex flex-col hidden md:flex backdrop-blur-sm">
-                    <div className="flex-1 p-4 overflow-y-auto space-y-4">
-                        <AnimatePresence initial={false}>
-                            {messages.map((msg, idx) => (
-                                <motion.div
-                                    key={idx}
-                                    initial={{ opacity: 0, y: 20, scale: 0.8 }}
-                                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                                    className={`flex ${msg.sender === 'me' ? 'justify-end' : 'justify-start'}`}
-                                >
-                                    <div className={`max-w-[80%] rounded-2xl px-4 py-2 shadow-lg ${msg.sender === 'me' ? 'bg-gradient-to-r from-cyan-600 to-blue-600 rounded-br-none shadow-cyan-500/30' : 'bg-gradient-to-r from-purple-700 to-pink-700 rounded-bl-none shadow-purple-500/30'}`}>
-                                        {msg.text}
-                                    </div>
-                                </motion.div>
-                            ))}
-                        </AnimatePresence>
+                {/* Right Side: Chat (Omegle Style) */}
+                <div className="w-full md:w-96 bg-white border-l border-gray-200 flex flex-col">
+                    {/* Messages Area - Simple Text */}
+                    <div className="flex-1 overflow-y-auto p-4 space-y-2 font-mono text-sm md:text-base">
+                        <div className="text-gray-400 text-center text-xs mb-4">
+                            You're now chatting with a random stranger. Say hi!
+                        </div>
+
+                        {messages.map((msg, idx) => (
+                            <div key={idx} className={`leading-relaxed break-words ${msg.sender === 'me' ? 'text-blue-600' : 'text-red-600'}`}>
+                                <span className="font-bold uppercase tracking-wider mr-1">
+                                    {msg.sender === 'me' ? 'You:' : 'Stranger:'}
+                                </span>
+                                <span className="text-gray-800">
+                                    {msg.text}
+                                </span>
+                            </div>
+                        ))}
+
+                        {!remoteStream && status.includes('Waiting') && (
+                            <div className="text-gray-400 italic text-sm animate-pulse mt-4">
+                                Stranger is typing...
+                            </div>
+                        )}
                     </div>
-                    <form onSubmit={sendMessage} className="p-4 bg-gradient-to-r from-gray-900/90 via-purple-900/50 to-pink-900/50 border-t border-purple-500/30 flex gap-2 backdrop-blur-md">
+
+                    {/* Chat Input */}
+                    <form onSubmit={sendMessage} className="p-3 border-t border-gray-200 bg-gray-50 flex gap-2">
                         <input
                             type="text"
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
                             placeholder="Type a message..."
-                            className="flex-1 bg-gradient-to-r from-gray-800 to-purple-900/50 border border-purple-500/30 rounded-full px-4 py-2 focus:ring-2 focus:ring-purple-500 outline-none transition-all focus:scale-[1.02] text-white placeholder-gray-400"
+                            disabled={!remoteStream}
+                            className="flex-1 bg-white border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-400 disabled:opacity-50 disabled:bg-gray-100 placeholder-gray-400 text-gray-800 shadow-sm"
                         />
-                        <motion.button whileHover={{ scale: 1.15, rotate: 15 }} whileTap={{ scale: 0.9 }} type="submit" className="p-3 rounded-full bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 hover:from-cyan-600 hover:via-purple-600 hover:to-pink-600 transition-all duration-300 shadow-lg shadow-purple-500/50">
-                            <Send className="w-5 h-5" />
-                        </motion.button>
+                        <button
+                            type="submit"
+                            disabled={!input.trim() || !remoteStream}
+                            className={`px-4 py-2 font-bold rounded text-sm uppercase tracking-wide transition-all shadow-sm
+                                ${input.trim() && remoteStream
+                                    ? 'bg-white text-blue-600 border border-blue-200 hover:border-blue-400'
+                                    : 'bg-gray-100 text-gray-400 border border-gray-200'
+                                }`}
+                        >
+                            Send
+                        </button>
                     </form>
                 </div>
-            </div>
+
+            </main>
 
             {/* Modals */}
             <FilterModal
