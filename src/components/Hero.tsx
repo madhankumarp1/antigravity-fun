@@ -22,7 +22,7 @@ export default function Hero() {
     }, []);
 
     return (
-        <div className="min-h-screen flex flex-col items-center bg-[#FFFBEF] text-[#444] font-sans">
+        <div className="min-h-screen flex flex-col items-center bg-white text-[#444] font-sans">
             {/* Header */}
             <header className="w-full max-w-6xl mx-auto p-4 flex items-center justify-between">
                 <div className="flex items-center gap-2">

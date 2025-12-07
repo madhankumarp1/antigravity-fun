@@ -306,50 +306,68 @@ export default function VideoChat() {
                 <div className="flex-1 flex flex-col min-w-0 bg-[#f0f0f0] p-2 md:p-4 gap-2 md:gap-4 relative">
 
                     {/* Primary Video Container */}
-                    <div className="flex-1 relative bg-[#333] rounded-lg overflow-hidden shadow-inner flex items-center justify-center group">
-                        {/* Remote Video */}
+                    <div className="flex-1 relative bg-gray-100 rounded-lg overflow-hidden border border-gray-300 shadow-sm flex items-center justify-center group">
+                        {/* Local Video Label */}
+                        {stream && (
+                            <div className="absolute top-4 left-4 z-10 bg-black/50 text-white px-3 py-1 rounded-full text-sm font-medium backdrop-blur-sm">
+                                You
+                            </div>
+                        )}
+                        {/* Local Video (Main) */}
+                        <video
+                            playsInline
+                            autoPlay
+                            muted
+                            ref={myVideo}
+                            className={`w-full h-full object-contain bg-black ${isVideoOff ? 'hidden' : ''}`}
+                        />
+                        {isVideoOff && (
+                            <div className="absolute inset-0 flex items-center justify-center bg-gray-800 text-white text-lg">
+                                Camera Off
+                            </div>
+                        )}
+
+
+
+                        {/* Remote Video (PiP Style) */}
                         <AnimatePresence mode="wait">
                             {remoteStream ? (
-                                <motion.video
-                                    key="remote-video"
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    exit={{ opacity: 0 }}
-                                    playsInline
-                                    autoPlay
-                                    // Start muted to comply with autoplay policies, user can unmute
-                                    muted={false}
-                                    ref={(el) => {
-                                        remoteVideo.current = el;
-                                        if (el && remoteStream) {
-                                            if (el.srcObject !== remoteStream) {
-                                                console.log('🔄 Setting srcObject on mount');
-                                                el.srcObject = remoteStream;
-                                                el.play().catch(e => console.error('Auto-play error:', e));
+                                <motion.div
+                                    key="remote-pip"
+                                    initial={{ opacity: 0, scale: 0.8 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.8 }}
+                                    className="absolute bottom-4 right-4 w-32 md:w-48 aspect-video bg-black rounded border-2 border-blue-400 overflow-hidden shadow-lg z-20 hover:scale-105 transition-transform"
+                                >
+                                    <div className="absolute bottom-2 right-2 z-30 bg-black/50 text-white px-2 py-0.5 rounded text-xs font-medium">
+                                        Stranger
+                                    </div>
+                                    <video
+                                        playsInline
+                                        autoPlay
+                                        muted={false}
+                                        ref={(el) => {
+                                            remoteVideo.current = el;
+                                            if (el && remoteStream) {
+                                                if (el.srcObject !== remoteStream) {
+                                                    console.log('🔄 Setting remote srcObject in PiP');
+                                                    el.srcObject = remoteStream;
+                                                    el.play().catch(e => console.error('Auto-play error:', e));
+                                                }
                                             }
-                                        }
-                                    }}
-                                    className="w-full h-full object-contain bg-black"
-                                />
+                                        }}
+                                        className="w-full h-full object-cover"
+                                    />
+                                </motion.div>
                             ) : (
-                                <div className="text-center text-white/50">
-                                    <div className="animate-spin text-4xl mb-4">⏳</div>
-                                    <p className="text-lg font-medium">{status}</p>
+                                <div className="absolute bottom-4 right-4 w-32 md:w-48 aspect-video bg-gray-700 rounded border-2 border-gray-500 overflow-hidden shadow-lg z-20 flex flex-col items-center justify-center">
+                                    <div className="text-gray-400 text-xs text-center px-2">
+                                        <div className="animate-pulse mb-1">⏳</div>
+                                        <div>Waiting...</div>
+                                    </div>
                                 </div>
                             )}
                         </AnimatePresence>
-
-                        {/* Local Video (PiP Style) */}
-                        <div className="absolute bottom-4 right-4 w-32 md:w-48 aspect-video bg-black rounded border-2 border-white/20 overflow-hidden shadow-lg z-20">
-                            <video
-                                playsInline
-                                autoPlay
-                                muted
-                                ref={myVideo}
-                                className={`w-full h-full object-cover ${isVideoOff ? 'hidden' : 'block'}`}
-                            />
-                            {isVideoOff && <div className="w-full h-full flex items-center justify-center bg-gray-800 text-white text-xs">Camera Off</div>}
-                        </div>
 
                         {/* Report Flag (Overlay) */}
                         {remoteStream && (
