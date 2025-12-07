@@ -302,83 +302,78 @@ export default function VideoChat() {
             {/* Main Content Area */}
             <main className="flex-1 flex overflow-hidden">
 
-                {/* Left Side: Video & Controls */}
+                {/* Left Side: Videos (Stacked) & Controls */}
                 <div className="flex-1 flex flex-col min-w-0 bg-[#f0f0f0] p-2 md:p-4 gap-2 md:gap-4 relative">
 
-                    {/* Primary Video Container */}
-                    <div className="flex-1 relative bg-gray-100 rounded-lg overflow-hidden border border-gray-300 shadow-sm flex items-center justify-center group">
-                        {/* Local Video Label */}
-                        {stream && (
-                            <div className="absolute top-4 left-4 z-10 bg-black/50 text-white px-3 py-1 rounded-full text-sm font-medium backdrop-blur-sm">
+                    {/* Videos Container - Stacked Vertically */}
+                    <div className="flex-1 flex flex-col gap-2 md:gap-3">
+
+                        {/* Stranger's Video (Top) */}
+                        <div className="flex-1 relative bg-gradient-to-br from-orange-400 to-orange-500 rounded-lg overflow-hidden border border-gray-300 shadow-md flex items-center justify-center">
+                            <AnimatePresence mode="wait">
+                                {remoteStream ? (
+                                    <>
+                                        <div className="absolute top-3 left-3 z-10 bg-black/70 text-white px-3 py-1 rounded-full text-sm font-bold backdrop-blur-sm">
+                                            Stranger
+                                        </div>
+                                        <motion.video
+                                            key="remote-video"
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            exit={{ opacity: 0 }}
+                                            playsInline
+                                            autoPlay
+                                            muted={false}
+                                            ref={(el) => {
+                                                remoteVideo.current = el;
+                                                if (el && remoteStream) {
+                                                    if (el.srcObject !== remoteStream) {
+                                                        console.log('🔄 Setting remote srcObject');
+                                                        el.srcObject = remoteStream;
+                                                        el.play().catch(e => console.error('Auto-play error:', e));
+                                                    }
+                                                }
+                                            }}
+                                            className="w-full h-full object-cover"
+                                        />
+                                        {/* Report Flag */}
+                                        <button
+                                            onClick={() => setShowReportModal(true)}
+                                            className="absolute top-3 right-3 p-2 bg-black/50 text-white/70 hover:text-red-500 rounded hover:bg-black/70 transition-colors z-10"
+                                            title="Report User"
+                                        >
+                                            <Flag size={16} />
+                                        </button>
+                                    </>
+                                ) : (
+                                    <div className="text-center text-white">
+                                        <div className="mb-4 text-6xl">!</div>
+                                        <button className="bg-gray-700 hover:bg-gray-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors">
+                                            ADD FRIEND
+                                        </button>
+                                    </div>
+                                )}
+                            </AnimatePresence>
+                        </div>
+
+                        {/* Your Video (Bottom) */}
+                        <div className="flex-1 relative bg-gray-200 rounded-lg overflow-hidden border border-gray-300 shadow-md flex items-center justify-center">
+                            <div className="absolute top-3 left-3 z-10 bg-black/70 text-white px-3 py-1 rounded-full text-sm font-bold backdrop-blur-sm">
                                 You
                             </div>
-                        )}
-                        {/* Local Video (Main) */}
-                        <video
-                            playsInline
-                            autoPlay
-                            muted
-                            ref={myVideo}
-                            className={`w-full h-full object-contain bg-black ${isVideoOff ? 'hidden' : ''}`}
-                        />
-                        {isVideoOff && (
-                            <div className="absolute inset-0 flex items-center justify-center bg-gray-800 text-white text-lg">
-                                Camera Off
-                            </div>
-                        )}
-
-
-
-                        {/* Remote Video (PiP Style) */}
-                        <AnimatePresence mode="wait">
-                            {remoteStream ? (
-                                <motion.div
-                                    key="remote-pip"
-                                    initial={{ opacity: 0, scale: 0.8 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    exit={{ opacity: 0, scale: 0.8 }}
-                                    className="absolute bottom-4 right-4 w-32 md:w-48 aspect-video bg-black rounded border-2 border-blue-400 overflow-hidden shadow-lg z-20 hover:scale-105 transition-transform"
-                                >
-                                    <div className="absolute bottom-2 right-2 z-30 bg-black/50 text-white px-2 py-0.5 rounded text-xs font-medium">
-                                        Stranger
-                                    </div>
-                                    <video
-                                        playsInline
-                                        autoPlay
-                                        muted={false}
-                                        ref={(el) => {
-                                            remoteVideo.current = el;
-                                            if (el && remoteStream) {
-                                                if (el.srcObject !== remoteStream) {
-                                                    console.log('🔄 Setting remote srcObject in PiP');
-                                                    el.srcObject = remoteStream;
-                                                    el.play().catch(e => console.error('Auto-play error:', e));
-                                                }
-                                            }
-                                        }}
-                                        className="w-full h-full object-cover"
-                                    />
-                                </motion.div>
-                            ) : (
-                                <div className="absolute bottom-4 right-4 w-32 md:w-48 aspect-video bg-gray-700 rounded border-2 border-gray-500 overflow-hidden shadow-lg z-20 flex flex-col items-center justify-center">
-                                    <div className="text-gray-400 text-xs text-center px-2">
-                                        <div className="animate-pulse mb-1">⏳</div>
-                                        <div>Waiting...</div>
-                                    </div>
+                            <video
+                                playsInline
+                                autoPlay
+                                muted
+                                ref={myVideo}
+                                className={`w-full h-full object-cover ${isVideoOff ? 'hidden' : ''}`}
+                            />
+                            {isVideoOff && (
+                                <div className="absolute inset-0 flex items-center justify-center bg-gray-800 text-white text-lg">
+                                    Camera Off
                                 </div>
                             )}
-                        </AnimatePresence>
-
-                        {/* Report Flag (Overlay) */}
-                        {remoteStream && (
-                            <button
-                                onClick={() => setShowReportModal(true)}
-                                className="absolute top-2 right-2 p-2 bg-black/50 text-white/70 hover:text-red-500 rounded hover:bg-black/70 transition-colors"
-                                title="Report User"
-                            >
-                                <Flag size={16} />
-                            </button>
-                        )}
+                        </div>
                     </div>
 
                     {/* Control Bar (Omegle Style) */}
