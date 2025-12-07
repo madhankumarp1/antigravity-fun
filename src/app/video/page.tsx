@@ -289,15 +289,15 @@ export default function VideoChat() {
     if (!mounted) return null;
 
     return (
-        <div className="flex flex-col h-screen bg-white text-[#333] font-sans">
+        <div className="flex flex-col min-h-screen bg-white text-[#333] font-sans overflow-x-hidden">
             {/* Header */}
-            <header className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white z-50">
-                <div className="flex items-center gap-2">
-                    <Link href="/" className="text-3xl font-bold tracking-tight select-none">
+            <header className="flex items-center justify-between px-3 md:px-4 py-3 border-b border-gray-200 bg-white z-50 shrink-0">
+                <div className="flex items-center gap-1 md:gap-2">
+                    <Link href="/" className="text-2xl md:text-3xl font-bold tracking-tight select-none">
                         <span className="text-blue-500">antigravity</span>
                         <span className="text-orange-500 transform rotate-12 inline-block">.fun</span>
                     </Link>
-                    <span className="text-xs text-gray-400 mt-2 rotate-[-5deg] font-handwriting">talk to strangers!</span>
+                    <span className="hidden sm:block text-xs text-gray-400 mt-2 rotate-[-5deg] font-handwriting">talk to strangers!</span>
                 </div>
 
                 <div className="flex items-center gap-4 text-sm font-medium text-gray-500">
@@ -313,14 +313,14 @@ export default function VideoChat() {
             {/* Main Content Area */}
             <main className="flex-1 flex flex-col md:flex-row overflow-hidden">
 
-                {/* Left Side: Videos (Stacked) & Controls */}
-                <div className="flex-1 flex flex-col min-w-0 bg-[#f0f0f0] p-2 md:p-4 gap-2 md:gap-4 relative touch-none">
+                {/* Videos & Controls */}
+                <div className="flex-1 flex flex-col min-w-0 bg-[#f0f0f0] p-3 md:p-4 gap-2 md:gap-3 relative">
 
-                    {/* Videos Container - Stacked Vertically */}
-                    <div className="flex-1 flex flex-col gap-2 md:gap-3">
+                    {/* Videos Container - Horizontal on Desktop */}
+                    <div className="flex flex-col md:flex-row md:flex-1 gap-2 md:gap-3 w-full max-w-6xl mx-auto">
 
-                        {/* Stranger's Video (Top) */}
-                        <div className="flex-1 relative bg-gradient-to-br from-orange-400 to-orange-500 rounded-lg overflow-hidden border border-gray-300 shadow-md flex items-center justify-center">
+                        {/* Stranger's Video (Left on Desktop) */}
+                        <div className="aspect-video md:aspect-auto md:flex-1 md:h-full w-full relative bg-gradient-to-br from-orange-400 to-orange-500 rounded-lg overflow-hidden border border-gray-300 shadow-md flex items-center justify-center">
                             <AnimatePresence mode="wait">
                                 {remoteStream ? (
                                     <>
@@ -347,10 +347,10 @@ export default function VideoChat() {
                                         {/* Report Flag */}
                                         <button
                                             onClick={() => setShowReportModal(true)}
-                                            className="absolute top-3 right-3 p-2 bg-black/50 text-white/70 hover:text-red-500 rounded hover:bg-black/70 transition-colors z-10"
+                                            className="absolute top-2 right-2 md:top-3 md:right-3 p-2 md:p-2 bg-black/50 text-white/70 hover:text-red-500 rounded hover:bg-black/70 transition-colors z-10"
                                             title="Report User"
                                         >
-                                            <Flag size={16} />
+                                            <Flag size={18} className="md:w-4 md:h-4" />
                                         </button>
                                     </>
                                 ) : (
@@ -364,8 +364,8 @@ export default function VideoChat() {
                             </AnimatePresence>
                         </div>
 
-                        {/* Your Video (Bottom) */}
-                        <div className="flex-1 relative bg-gray-200 rounded-lg overflow-hidden border border-gray-300 shadow-md flex items-center justify-center">
+                        {/* Your Video (Right on Desktop) */}
+                        <div className="aspect-video md:aspect-auto md:flex-1 md:h-full w-full relative bg-gray-200 rounded-lg overflow-hidden border border-gray-300 shadow-md flex items-center justify-center">
                             <div className="absolute top-3 left-3 z-10 bg-black/70 text-white px-3 py-1 rounded-full text-sm font-bold backdrop-blur-sm">
                                 You
                             </div>
@@ -386,56 +386,56 @@ export default function VideoChat() {
                     </div>
 
                     {/* Control Bar (Omegle Style) */}
-                    <div className="h-16 flex gap-0.5 md:gap-4 shrink-0">
+                    <div className="h-16 md:h-18 flex gap-2 md:gap-3 shrink-0 w-full max-w-6xl mx-auto">
                         {/* Stop / New Chat Button */}
                         <button
                             onClick={handleSkip}
                             disabled={!canSkip}
-                            className={`flex-1 md:flex-none md:w-40 flex flex-col items-center justify-center rounded shadow-sm transition-all active:scale-[0.98]
+                            className={`w-32 md:w-40 flex flex-col items-center justify-center rounded-lg shadow-md transition-all active:scale-[0.95]
                                 ${canSkip
-                                    ? 'bg-[#80bfff] hover:bg-[#66b3ff] text-white' // Blue "New" style
+                                    ? 'bg-[#80bfff] hover:bg-[#66b3ff] text-white'
                                     : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                                 }`}
                         >
-                            <span className="font-bold text-lg drop-shadow-sm uppercase tracking-wide">
+                            <span className="font-bold text-base md:text-lg drop-shadow-sm uppercase tracking-wide">
                                 {remoteStream ? 'Stop' : 'New'}
                             </span>
-                            <span className="text-[10px] uppercase font-semibold opacity-80">
+                            <span className="hidden md:block text-[10px] uppercase font-semibold opacity-80">
                                 {canSkip ? 'Press Esc' : 'Wait...'}
                             </span>
                         </button>
 
                         {/* Middle Controls (Orange) */}
-                        <div className="flex-1 flex bg-orange-100 rounded border border-orange-200 p-1 gap-1">
+                        <div className="flex-1 flex bg-orange-100 rounded-lg border border-orange-200 p-1.5 gap-1.5">
                             <button
                                 onClick={toggleMute}
-                                className={`flex-1 flex flex-col items-center justify-center rounded text-orange-800 hover:bg-orange-200 transition-colors ${isMuted ? 'text-red-600 bg-red-50' : ''}`}
+                                className={`flex-1 flex flex-col items-center justify-center rounded-md text-orange-800 hover:bg-orange-200 transition-colors ${isMuted ? 'text-red-600 bg-red-50' : ''}`}
                             >
-                                {isMuted ? <MicOff size={20} /> : <Mic size={20} />}
-                                <span className="text-[10px] font-bold mt-1">Mic</span>
+                                {isMuted ? <MicOff size={22} className="md:w-5 md:h-5" /> : <Mic size={22} className="md:w-5 md:h-5" />}
+                                <span className="text-[10px] md:text-[10px] font-bold mt-0.5">Mic</span>
                             </button>
 
                             <button
                                 onClick={toggleVideo}
-                                className={`flex-1 flex flex-col items-center justify-center rounded text-orange-800 hover:bg-orange-200 transition-colors ${isVideoOff ? 'text-red-600 bg-red-50' : ''}`}
+                                className={`flex-1 flex flex-col items-center justify-center rounded-md text-orange-800 hover:bg-orange-200 transition-colors ${isVideoOff ? 'text-red-600 bg-red-50' : ''}`}
                             >
-                                {isVideoOff ? <VideoOff size={20} /> : <Video size={20} />}
-                                <span className="text-[10px] font-bold mt-1">Cam</span>
+                                {isVideoOff ? <VideoOff size={22} className="md:w-5 md:h-5" /> : <Video size={22} className="md:w-5 md:h-5" />}
+                                <span className="text-[10px] md:text-[10px] font-bold mt-0.5">Cam</span>
                             </button>
 
                             <button
                                 onClick={() => setShowFilterModal(true)}
-                                className="hidden md:flex flex-1 flex-col items-center justify-center rounded text-orange-800 hover:bg-orange-200 transition-colors"
+                                className="hidden md:flex flex-1 flex-col items-center justify-center rounded-md text-orange-800 hover:bg-orange-200 transition-colors"
                             >
                                 <Filter size={20} />
-                                <span className="text-[10px] font-bold mt-1">Filters</span>
+                                <span className="text-[10px] font-bold mt-0.5">Filters</span>
                             </button>
                         </div>
                     </div>
                 </div>
 
-                {/* Right Side: Chat (Omegle Style) */}
-                <div className="w-full md:w-96 bg-white border-l border-gray-200 flex flex-col">
+                {/* Chat Area */}
+                <div className="w-full md:w-96 bg-white border-t md:border-t-0 md:border-l border-gray-200 flex flex-col h-[35vh] md:h-auto">
                     {/* Messages Area - Simple Text */}
                     <div className="flex-1 overflow-y-auto p-4 space-y-2 font-mono text-sm md:text-base">
                         <div className="text-gray-400 text-center text-xs mb-4">
@@ -461,19 +461,19 @@ export default function VideoChat() {
                     </div>
 
                     {/* Chat Input */}
-                    <form onSubmit={sendMessage} className="p-3 border-t border-gray-200 bg-gray-50 flex gap-2">
+                    <form onSubmit={sendMessage} className="p-2 md:p-3 border-t border-gray-200 bg-gray-50 flex gap-2 shrink-0">
                         <input
                             type="text"
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
                             placeholder="Type a message..."
                             disabled={!remoteStream}
-                            className="flex-1 bg-white border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-400 disabled:opacity-50 disabled:bg-gray-100 placeholder-gray-400 text-gray-800 shadow-sm"
+                            className="flex-1 bg-white border border-gray-300 rounded px-3 py-3 md:py-2 text-sm focus:outline-none focus:border-blue-400 disabled:opacity-50 disabled:bg-gray-100 placeholder-gray-400 text-gray-800 shadow-sm"
                         />
                         <button
                             type="submit"
                             disabled={!input.trim() || !remoteStream}
-                            className={`px-4 py-2 font-bold rounded text-sm uppercase tracking-wide transition-all shadow-sm
+                            className={`px-4 md:px-4 py-3 md:py-2 font-bold rounded text-sm uppercase tracking-wide transition-all shadow-sm min-h-[44px]
                                 ${input.trim() && remoteStream
                                     ? 'bg-white text-blue-600 border border-blue-200 hover:border-blue-400'
                                     : 'bg-gray-100 text-gray-400 border border-gray-200'
