@@ -289,7 +289,7 @@ export default function VideoChat() {
     if (!mounted) return null;
 
     return (
-        <div className="flex flex-col min-h-screen bg-white text-[#333] font-sans overflow-x-hidden">
+        <div className="flex flex-col min-h-screen w-full bg-white text-[#333] font-sans overflow-x-hidden">
             {/* Header */}
             <header className="flex items-center justify-between px-3 md:px-4 py-3 border-b border-gray-200 bg-white z-50 shrink-0">
                 <div className="flex items-center gap-1 md:gap-2">
@@ -311,13 +311,13 @@ export default function VideoChat() {
             </header>
 
             {/* Main Content Area */}
-            <main className="flex-1 flex flex-col md:flex-row overflow-hidden">
+            <main className="flex-1 flex flex-col md:flex-row w-full overflow-hidden">
 
                 {/* Videos & Controls */}
-                <div className="flex-1 flex flex-col min-w-0 bg-[#f0f0f0] p-3 md:p-4 gap-2 md:gap-3 relative">
+                <div className="flex-1 flex flex-col w-full min-w-0 bg-[#f0f0f0] p-3 md:p-4 gap-2 md:gap-3 relative">
 
                     {/* Videos Container - Horizontal on Desktop */}
-                    <div className="flex flex-col sm:flex-row sm:flex-1 gap-2 sm:gap-3 w-full max-w-6xl mx-auto">
+                    <div className="flex flex-col sm:flex-row sm:flex-1 gap-2 sm:gap-3 w-full max-w-6xl mx-auto items-stretch">
 
                         {/* Stranger's Video (Left on Desktop) */}
                         <div className="aspect-video sm:aspect-auto sm:flex-1 sm:h-full w-full relative bg-gradient-to-br from-orange-400 to-orange-500 rounded-lg overflow-hidden border border-gray-300 shadow-md flex items-center justify-center">
@@ -435,7 +435,7 @@ export default function VideoChat() {
                 </div>
 
                 {/* Chat Area */}
-                <div className="w-full md:w-96 bg-white border-t md:border-t-0 md:border-l border-gray-200 flex flex-col h-[35vh] md:h-auto">
+                <div className="w-full md:w-96 md:max-w-96 bg-white border-t md:border-t-0 md:border-l border-gray-200 flex flex-col h-[35vh] md:h-auto shrink-0">
                     {/* Messages Area - Simple Text */}
                     <div className="flex-1 overflow-y-auto p-4 space-y-2 font-mono text-sm md:text-base">
                         <div className="text-gray-400 text-center text-xs mb-4">
