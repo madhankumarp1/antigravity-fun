@@ -291,7 +291,7 @@ export default function VideoChat() {
     return (
         <div className="flex flex-col min-h-screen w-full bg-white text-[#333] font-sans overflow-x-hidden">
             {/* Header */}
-            <header className="flex items-center justify-between px-3 md:px-4 py-3 border-b border-gray-200 bg-white z-50 shrink-0">
+            <header className="flex items-center justify-between px-3 md:px-4 py-3 border-b border-gray-200 bg-white z-50 shrink-0" role="banner">
                 <div className="flex items-center gap-1 md:gap-2">
                     <Link href="/" className="text-2xl md:text-3xl font-bold tracking-tight select-none">
                         <span className="text-blue-500">antigravity</span>
@@ -320,7 +320,7 @@ export default function VideoChat() {
                     <div className="flex flex-col sm:flex-row sm:flex-1 gap-2 sm:gap-3 w-full max-w-6xl mx-auto items-stretch">
 
                         {/* Stranger's Video (Left on Desktop) */}
-                        <div className="aspect-video sm:aspect-auto sm:flex-1 sm:h-full w-full relative bg-gradient-to-br from-orange-400 to-orange-500 rounded-lg overflow-hidden border border-gray-300 shadow-md flex items-center justify-center">
+                        <div className="aspect-video sm:aspect-auto sm:flex-1 sm:h-full w-full relative bg-gradient-to-br from-orange-400 to-orange-500 rounded-lg overflow-hidden border border-gray-300 shadow-md flex items-center justify-center" aria-label="Stranger's video">
                             <AnimatePresence mode="wait">
                                 {remoteStream ? (
                                     <>
@@ -343,20 +343,22 @@ export default function VideoChat() {
                                             }}
                                             className="w-full h-full object-cover"
                                             style={{ transform: 'translateZ(0)' }}
+                                            aria-label="Remote user video stream"
                                         />
                                         {/* Report Flag */}
                                         <button
                                             onClick={() => setShowReportModal(true)}
-                                            className="absolute top-2 right-2 md:top-3 md:right-3 p-2 md:p-2 bg-black/50 text-white/70 hover:text-red-500 rounded hover:bg-black/70 transition-colors z-10"
+                                            className="absolute top-2 right-2 md:top-3 md:right-3 p-2 bg-black/50 text-white/70 hover:text-red-500 rounded hover:bg-black/70 transition-colors z-10 cursor-pointer focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
                                             title="Report User"
+                                            aria-label="Report user"
                                         >
-                                            <Flag size={18} className="md:w-4 md:h-4" />
+                                            <Flag size={18} className="md:w-4 md:h-4" aria-hidden="true" />
                                         </button>
                                     </>
                                 ) : (
                                     <div className="text-center text-white">
-                                        <div className="mb-4 text-6xl">!</div>
-                                        <button className="bg-gray-700 hover:bg-gray-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors">
+                                        <div className="mb-4 text-6xl" aria-hidden="true">!</div>
+                                        <button className="bg-gray-700 hover:bg-gray-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2" aria-label="Add friend">
                                             ADD FRIEND
                                         </button>
                                     </div>
@@ -365,7 +367,7 @@ export default function VideoChat() {
                         </div>
 
                         {/* Your Video (Right on Desktop) */}
-                        <div className="aspect-video sm:aspect-auto sm:flex-1 sm:h-full w-full relative bg-gray-200 rounded-lg overflow-hidden border border-gray-300 shadow-md flex items-center justify-center">
+                        <div className="aspect-video sm:aspect-auto sm:flex-1 sm:h-full w-full relative bg-gray-200 rounded-lg overflow-hidden border border-gray-300 shadow-md flex items-center justify-center" aria-label="Your video">
                             <div className="absolute top-3 left-3 z-10 bg-black/70 text-white px-3 py-1 rounded-full text-sm font-bold backdrop-blur-sm">
                                 You
                             </div>
@@ -376,6 +378,7 @@ export default function VideoChat() {
                                 ref={myVideo}
                                 className={`w-full h-full object-cover ${isVideoOff ? 'hidden' : ''}`}
                                 style={{ transform: 'translateZ(0)' }}
+                                aria-label="Your video stream"
                             />
                             {isVideoOff && (
                                 <div className="absolute inset-0 flex items-center justify-center bg-gray-800 text-white text-lg">
@@ -386,16 +389,17 @@ export default function VideoChat() {
                     </div>
 
                     {/* Control Bar (Omegle Style) */}
-                    <div className="h-16 md:h-18 flex gap-2 md:gap-3 shrink-0 w-full max-w-6xl mx-auto">
+                    <div className="h-16 md:h-20 flex gap-2 md:gap-3 shrink-0 w-full max-w-6xl mx-auto" role="toolbar" aria-label="Video chat controls">
                         {/* Stop / New Chat Button */}
                         <button
                             onClick={handleSkip}
                             disabled={!canSkip}
-                            className={`w-32 md:w-40 flex flex-col items-center justify-center rounded-lg shadow-md transition-all active:scale-[0.95]
+                            className={`w-32 md:w-40 flex flex-col items-center justify-center rounded-lg shadow-md transition-all active:scale-95 cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2
                                 ${canSkip
                                     ? 'bg-[#80bfff] hover:bg-[#66b3ff] text-white'
                                     : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                                 }`}
+                            aria-label={remoteStream ? 'Stop chat' : 'Start new chat'}
                         >
                             <span className="font-bold text-base md:text-lg drop-shadow-sm uppercase tracking-wide">
                                 {remoteStream ? 'Stop' : 'New'}
@@ -409,25 +413,28 @@ export default function VideoChat() {
                         <div className="flex-1 flex bg-orange-100 rounded-lg border border-orange-200 p-1.5 gap-1.5">
                             <button
                                 onClick={toggleMute}
-                                className={`flex-1 flex flex-col items-center justify-center rounded-md text-orange-800 hover:bg-orange-200 transition-colors ${isMuted ? 'text-red-600 bg-red-50' : ''}`}
+                                className={`flex-1 flex flex-col items-center justify-center rounded-md text-orange-800 hover:bg-orange-200 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 ${isMuted ? 'text-red-600 bg-red-50' : ''}`}
+                                aria-label={isMuted ? 'Unmute microphone' : 'Mute microphone'}
                             >
-                                {isMuted ? <MicOff size={22} className="md:w-5 md:h-5" /> : <Mic size={22} className="md:w-5 md:h-5" />}
+                                {isMuted ? <MicOff size={22} className="md:w-5 md:h-5" aria-hidden="true" /> : <Mic size={22} className="md:w-5 md:h-5" aria-hidden="true" />}
                                 <span className="text-[10px] md:text-[10px] font-bold mt-0.5">Mic</span>
                             </button>
 
                             <button
                                 onClick={toggleVideo}
-                                className={`flex-1 flex flex-col items-center justify-center rounded-md text-orange-800 hover:bg-orange-200 transition-colors ${isVideoOff ? 'text-red-600 bg-red-50' : ''}`}
+                                className={`flex-1 flex flex-col items-center justify-center rounded-md text-orange-800 hover:bg-orange-200 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 ${isVideoOff ? 'text-red-600 bg-red-50' : ''}`}
+                                aria-label={isVideoOff ? 'Turn on camera' : 'Turn off camera'}
                             >
-                                {isVideoOff ? <VideoOff size={22} className="md:w-5 md:h-5" /> : <Video size={22} className="md:w-5 md:h-5" />}
+                                {isVideoOff ? <VideoOff size={22} className="md:w-5 md:h-5" aria-hidden="true" /> : <Video size={22} className="md:w-5 md:h-5" aria-hidden="true" />}
                                 <span className="text-[10px] md:text-[10px] font-bold mt-0.5">Cam</span>
                             </button>
 
                             <button
                                 onClick={() => setShowFilterModal(true)}
-                                className="hidden md:flex flex-1 flex-col items-center justify-center rounded-md text-orange-800 hover:bg-orange-200 transition-colors"
+                                className="hidden md:flex flex-1 flex-col items-center justify-center rounded-md text-orange-800 hover:bg-orange-200 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2"
+                                aria-label="Open filters"
                             >
-                                <Filter size={20} />
+                                <Filter size={20} aria-hidden="true" />
                                 <span className="text-[10px] font-bold mt-0.5">Filters</span>
                             </button>
                         </div>
@@ -435,7 +442,7 @@ export default function VideoChat() {
                 </div>
 
                 {/* Chat Area */}
-                <div className="w-full md:w-96 md:max-w-96 bg-white border-t md:border-t-0 md:border-l border-gray-200 flex flex-col h-[35vh] md:h-auto shrink-0">
+                <div className="w-full md:w-96 md:max-w-96 bg-white border-t md:border-t-0 md:border-l border-gray-200 flex flex-col h-[35vh] md:h-auto shrink-0" role="region" aria-label="Chat messages">
                     {/* Messages Area - Simple Text */}
                     <div className="flex-1 overflow-y-auto p-4 space-y-2 font-mono text-sm md:text-base">
                         <div className="text-gray-400 text-center text-xs mb-4">
@@ -473,11 +480,12 @@ export default function VideoChat() {
                         <button
                             type="submit"
                             disabled={!input.trim() || !remoteStream}
-                            className={`px-4 md:px-4 py-3 md:py-2 font-bold rounded text-sm uppercase tracking-wide transition-all shadow-sm min-h-[44px]
+                            className={`px-4 py-3 md:py-2 font-bold rounded text-sm uppercase tracking-wide transition-all shadow-sm min-h-[44px] cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2
                                 ${input.trim() && remoteStream
                                     ? 'bg-white text-blue-600 border border-blue-200 hover:border-blue-400'
-                                    : 'bg-gray-100 text-gray-400 border border-gray-200'
+                                    : 'bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed'
                                 }`}
+                            aria-label="Send message"
                         >
                             Send
                         </button>
