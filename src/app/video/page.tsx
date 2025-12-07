@@ -317,10 +317,10 @@ export default function VideoChat() {
                 <div className="flex-1 flex flex-col min-w-0 bg-[#f0f0f0] p-3 md:p-4 gap-2 md:gap-3 relative">
 
                     {/* Videos Container - Horizontal on Desktop */}
-                    <div className="flex flex-col md:flex-row md:flex-1 gap-2 md:gap-3 w-full max-w-6xl mx-auto">
+                    <div className="flex flex-col sm:flex-row sm:flex-1 gap-2 sm:gap-3 w-full max-w-6xl mx-auto">
 
                         {/* Stranger's Video (Left on Desktop) */}
-                        <div className="aspect-video md:aspect-auto md:flex-1 md:h-full w-full relative bg-gradient-to-br from-orange-400 to-orange-500 rounded-lg overflow-hidden border border-gray-300 shadow-md flex items-center justify-center">
+                        <div className="aspect-video sm:aspect-auto sm:flex-1 sm:h-full w-full relative bg-gradient-to-br from-orange-400 to-orange-500 rounded-lg overflow-hidden border border-gray-300 shadow-md flex items-center justify-center">
                             <AnimatePresence mode="wait">
                                 {remoteStream ? (
                                     <>
@@ -365,7 +365,7 @@ export default function VideoChat() {
                         </div>
 
                         {/* Your Video (Right on Desktop) */}
-                        <div className="aspect-video md:aspect-auto md:flex-1 md:h-full w-full relative bg-gray-200 rounded-lg overflow-hidden border border-gray-300 shadow-md flex items-center justify-center">
+                        <div className="aspect-video sm:aspect-auto sm:flex-1 sm:h-full w-full relative bg-gray-200 rounded-lg overflow-hidden border border-gray-300 shadow-md flex items-center justify-center">
                             <div className="absolute top-3 left-3 z-10 bg-black/70 text-white px-3 py-1 rounded-full text-sm font-bold backdrop-blur-sm">
                                 You
                             </div>
